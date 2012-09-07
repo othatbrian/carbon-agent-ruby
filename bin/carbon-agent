@@ -1,0 +1,29 @@
+#!/usr/bin/ruby
+
+require 'socket'
+require_relative '../lib/stats'
+include Stats
+
+SERVER = 'carbon-server'
+PORT = 2003
+INTERVAL = 10
+
+hostname = Socket.gethostname
+
+while true do
+  time = Time.now.strftime('%s')
+
+  message = ""
+  message << "servers.#{hostname}.load_1m #{load_1m} #{time}\n"
+  message << "servers.#{hostname}.mem_total #{mem_total * 1024} #{time}\n"
+  message << "servers.#{hostname}.mem_free #{mem_free * 1024} #{time}\n"
+  message << "servers.#{hostname}.swap_total #{swap_total * 1024} #{time}\n"
+  message << "servers.#{hostname}.swap_free #{swap_free * 1024} #{time}\n"
+  message << "servers.#{hostname}.apache_active_workers #{apache_active_workers} #{time}\n"
+  message << "servers.#{hostname}.apache_idle_workers #{apache_idle_workers} #{time}\n"
+  
+  UDPSocket.new.send message, 0, SERVER, PORT
+  puts message
+
+  sleep INTERVAL
+end
