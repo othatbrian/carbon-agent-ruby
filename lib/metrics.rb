@@ -5,24 +5,10 @@ end
 
 module Metrics
   def apache_active_workers
-    #response = Net::HTTP.get_response('localhost', '/server-status?auto')
-    #if response.code == '200' then
-    #  response.body.split(/\n/).detect {|line| line =~ /^BusyWorkers: (\d+)/}
-    #  $1.to_i
-    #else
-    #  raise MetricNotAvailable
-    #end
     from_apache_mod_status("BusyWorkers").to_i
   end
 
   def apache_idle_workers
-    #response = Net::HTTP.get_response('localhost', '/server-status?auto')
-    #if response.code == '200' then
-    #  response.body.split(/\n/).detect {|line| line =~ /^IdleWorkers: (\d+)/}
-    #  $1.to_i
-    #else
-    #  raise MetricNotAvailable
-    #end
     from_apache_mod_status("IdleWorkers").to_i
   end
   
@@ -49,11 +35,15 @@ module Metrics
   private
 
   def from_apache_mod_status(string)
-    response = Net::HTTP.get_response('localhost', '/server-status?auto')
-    if response.code == '200' then
-      response.body.split(/\n/).detect {|line| line =~ /^#{Regexp.quote(string)}: (.*)/}
-      $1
-    else
+    begin
+      response = Net::HTTP.get_response('localhost', '/server-status?auto')
+      if response.code == '200' then
+        response.body.split(/\n/).detect {|line| line =~ /^#{Regexp.quote(string)}: (.*)/}
+        $1
+      else
+        raise MetricNotAvailable
+      end
+    rescue Errno::ECONNREFUSED
       raise MetricNotAvailable
     end
   end

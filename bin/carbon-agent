@@ -22,7 +22,7 @@ while true do
   begin
     message << "servers.#{hostname}.apache_active_workers #{apache_active_workers} #{time}\n"
     message << "servers.#{hostname}.apache_idle_workers #{apache_idle_workers} #{time}\n"
-  rescue Errno::ECONNREFUSED, MetricNotAvailable
+  rescue MetricNotAvailable
   end
   
   UDPSocket.new.send message, 0, SERVER, PORT

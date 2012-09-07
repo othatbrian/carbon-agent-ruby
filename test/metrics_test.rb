@@ -12,12 +12,6 @@ class MetricsTest < Test::Unit::TestCase
     assert_equal 1, apache_active_workers
   end
 
-  def test_apache_active_workers_not_enabled
-    response = flexmock(Net::HTTPResponse, :code => '404')
-    flexmock(Net::HTTP, :get_response => response)
-    assert_raise(MetricNotAvailable) { apache_active_workers }
-  end
-
   def test_apache_idle_workers
     apache_status = IO.read 'apache_status.txt'
     response = flexmock(Net::HTTPResponse, :code => '200', :body => apache_status)
@@ -25,10 +19,15 @@ class MetricsTest < Test::Unit::TestCase
     assert_equal 4, apache_idle_workers
   end
   
-  def test_apache_idle_workers_not_enabled
+  def test_apache_mod_status_disabled
     response = flexmock(Net::HTTPResponse, :code => '404')
     flexmock(Net::HTTP, :get_response => response)
-    assert_raise(MetricNotAvailable) { apache_idle_workers }
+    assert_raise(MetricNotAvailable) { apache_active_workers }
+  end
+  
+  def test_apache_not_available
+    flexmock(Net::HTTP).should_receive(:get_response).and_raise(Errno::ECONNREFUSED)
+    assert_raise(MetricNotAvailable) { apache_active_workers }
   end
   
   def test_load_1m
