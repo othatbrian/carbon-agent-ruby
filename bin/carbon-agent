@@ -19,8 +19,11 @@ while true do
   message << "servers.#{hostname}.mem_free #{mem_free * 1024} #{time}\n"
   message << "servers.#{hostname}.swap_total #{swap_total * 1024} #{time}\n"
   message << "servers.#{hostname}.swap_free #{swap_free * 1024} #{time}\n"
-  message << "servers.#{hostname}.apache_active_workers #{apache_active_workers} #{time}\n"
-  message << "servers.#{hostname}.apache_idle_workers #{apache_idle_workers} #{time}\n"
+  begin
+    message << "servers.#{hostname}.apache_active_workers #{apache_active_workers} #{time}\n"
+    message << "servers.#{hostname}.apache_idle_workers #{apache_idle_workers} #{time}\n"
+  rescue Errno::ECONNREFUSED
+  end
   
   UDPSocket.new.send message, 0, SERVER, PORT
   puts message
