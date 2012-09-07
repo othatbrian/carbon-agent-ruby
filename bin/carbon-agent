@@ -1,8 +1,8 @@
 #!/usr/bin/ruby
 
 require 'socket'
-require_relative '../lib/stats'
-include Stats
+require_relative '../lib/metrics'
+include Metrics
 
 SERVER = 'carbon-server'
 PORT = 2003
@@ -22,7 +22,7 @@ while true do
   begin
     message << "servers.#{hostname}.apache_active_workers #{apache_active_workers} #{time}\n"
     message << "servers.#{hostname}.apache_idle_workers #{apache_idle_workers} #{time}\n"
-  rescue Errno::ECONNREFUSED
+  rescue Errno::ECONNREFUSED, MetricNotAvailable
   end
   
   UDPSocket.new.send message, 0, SERVER, PORT

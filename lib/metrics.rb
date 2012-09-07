@@ -1,16 +1,27 @@
 require 'net/http'
 
+class MetricNotAvailable < RuntimeError
+end
+
 module Metrics
   def apache_active_workers
-    response = Net::HTTP.get('localhost', '/server-status?auto')
-    response.split(/\n/).detect {|line| line =~ /^BusyWorkers: (\d+)/}
-    $1.to_i
+    response = Net::HTTP.get_response('localhost', '/server-status?auto')
+    if response.code == '200' then
+      response.body.split(/\n/).detect {|line| line =~ /^BusyWorkers: (\d+)/}
+      $1.to_i
+    else
+      raise MetricNotAvailable
+    end
   end
 
   def apache_idle_workers
-    response = Net::HTTP.get('localhost', '/server-status?auto')
-    response.split(/\n/).detect {|line| line =~ /^IdleWorkers: (\d+)/}
-    $1.to_i
+    response = Net::HTTP.get_response('localhost', '/server-status?auto')
+    if response.code == '200' then
+      response.body.split(/\n/).detect {|line| line =~ /^IdleWorkers: (\d+)/}
+      $1.to_i
+    else
+      raise MetricNotAvailable
+    end
   end
   
   def load_1m
