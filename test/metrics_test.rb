@@ -1,9 +1,9 @@
 require 'test/unit'
 require 'flexmock/test_unit'
-require_relative '../lib/stats'
+require_relative '../lib/metrics'
 
-class StatsTest < Test::Unit::TestCase
-  include Stats
+class MetricsTest < Test::Unit::TestCase
+  include Metrics
   
   def test_apache_active_workers
     apache_status = IO.read 'apache_status.txt'

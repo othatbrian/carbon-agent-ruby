@@ -1,6 +1,6 @@
 require 'net/http'
 
-module Stats
+module Metrics
   def apache_active_workers
     response = Net::HTTP.get('localhost', '/server-status?auto')
     response.split(/\n/).detect {|line| line =~ /^BusyWorkers: (\d+)/}
