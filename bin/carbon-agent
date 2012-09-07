@@ -26,7 +26,6 @@ while true do
   end
   
   UDPSocket.new.send message, 0, SERVER, PORT
-  puts message
 
   sleep INTERVAL
 end
