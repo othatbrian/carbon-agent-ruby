@@ -20,8 +20,8 @@ while true do
   message << "servers.#{hostname}.swap_total #{swap_total * 1024} #{time}\n"
   message << "servers.#{hostname}.swap_free #{swap_free * 1024} #{time}\n"
   begin
-    message << "servers.#{hostname}.apache_active_workers #{apache_active_workers} #{time}\n"
-    message << "servers.#{hostname}.apache_idle_workers #{apache_idle_workers} #{time}\n"
+    message << "servers.#{hostname}.apache.active_workers #{apache_active_workers} #{time}\n"
+    message << "servers.#{hostname}.apache.idle_workers #{apache_idle_workers} #{time}\n"
   rescue MetricNotAvailable
   end
   
