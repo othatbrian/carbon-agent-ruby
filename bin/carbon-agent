@@ -14,7 +14,7 @@ while true do
   time = Time.now.strftime('%s')
 
   message = ""
-  message << "servers.#{hostname}.load_1m #{load_1m} #{time}\n"
+  message << "servers.#{hostname}.load_1min #{load_1m} #{time}\n"
   message << "servers.#{hostname}.mem_total #{mem_total * 1024} #{time}\n"
   message << "servers.#{hostname}.mem_free #{mem_free * 1024} #{time}\n"
   message << "servers.#{hostname}.swap_total #{swap_total * 1024} #{time}\n"
