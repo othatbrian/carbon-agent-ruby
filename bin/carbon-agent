@@ -1,14 +1,31 @@
 #!/usr/bin/ruby
 
+require 'optparse'
 require 'socket'
 require_relative '../lib/metrics'
 include Metrics
 
-SERVER = 'carbon-server'
-PORT = 2003
-INTERVAL = 10
-
 hostname = Socket.gethostname
+carbon_server = 'carbon-server'
+carbon_port = 2003
+interval = 10
+
+opts = OptionParser.new do |opts|
+  opts.on("-n", "--myname [hostname]", "Report hostname different from gethostname()") do |arg|
+    hostname = arg
+  end
+  opts.on("-s", "--server [hostname]", "Hostname or IP of carbon server") do |arg|
+    carbon_server = arg
+  end
+  opts.on("-p", "--port [number]", "IP port on carbon server") do |arg|
+    carbon_port = arg.to_i
+  end
+  opts.on("-i", "--interval [number]", "Seconds to sleep between reports") do |arg|
+    interval = arg.to_i
+  end
+end
+
+opts.parse(ARGV)
 
 while true do
   time = Time.now.strftime('%s')
@@ -25,7 +42,7 @@ while true do
   rescue MetricNotAvailable
   end
   
-  UDPSocket.new.send message, 0, SERVER, PORT
+  UDPSocket.new.send message, 0, carbon_server, carbon_port
 
-  sleep INTERVAL
+  sleep interval
 end
