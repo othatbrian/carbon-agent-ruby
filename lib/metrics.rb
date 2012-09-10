@@ -17,19 +17,19 @@ module Metrics
   end
   
   def mem_free
-    IO.read('/proc/meminfo').split(/\n/)[1].split[1].to_i
+    from_proc_meminfo('MemFree').gsub(" kB$", '').to_i
   end
   
   def mem_total
-    IO.read('/proc/meminfo').split(/\n/)[0].split[1].to_i
+    from_proc_meminfo('MemTotal').gsub(" kB$", '').to_i
   end
   
   def swap_free
-    IO.read('/proc/meminfo').split(/\n/)[13].split[1].to_i
+    from_proc_meminfo('SwapFree').gsub(" kB$", '').to_i
   end
   
   def swap_total
-    IO.read('/proc/meminfo').split(/\n/)[14].split[1].to_i
+    from_proc_meminfo('SwapTotal').gsub(" kB$", '').to_i
   end
 
   private
@@ -46,5 +46,10 @@ module Metrics
     rescue Errno::ECONNREFUSED
       raise MetricNotAvailable
     end
+  end
+
+  def from_proc_meminfo(string)
+    IO.read('/proc/meminfo').split(/\n/).detect {|line| line =~ /^#{Regexp.quote(string)}:\s+(.*)/}
+    $1
   end
 end
