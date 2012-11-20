@@ -41,6 +41,9 @@ while true do
     message << "servers.#{hostname}.apache.idle_workers #{apache_idle_workers} #{time}\n"
   rescue MetricNotAvailable
   end
+  filesystem_space.each do |fs|
+    message << "server.#{hostname}.filesystem.#{fs[0]} #{fs[1]} #{time}\n"
+  end
   
   UDPSocket.new.send message, 0, carbon_server, carbon_port
 

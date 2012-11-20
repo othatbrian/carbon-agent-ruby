@@ -12,6 +12,13 @@ module Metrics
     from_apache_mod_status("IdleWorkers").to_i
   end
   
+  def filesystem_space
+    `df -k | grep "^/"`.split(/\n/).collect do |line|
+      fields = line.split(/\s+/)
+      [fields[5], ((fields[1].to_i - fields[3].to_i).to_f / fields[1].to_f * 100).round]
+    end
+  end
+  
   def load_1m
     IO.read('/proc/loadavg').split(/\s/)[0]
   end
@@ -33,7 +40,7 @@ module Metrics
   end
 
   private
-
+  
   def from_apache_mod_status(string)
     begin
       response = Net::HTTP.get_response('localhost', '/server-status?auto')
