@@ -15,7 +15,9 @@ module Metrics
   def filesystem_space
     `df -k | grep "^/"`.split(/\n/).collect do |line|
       fields = line.split(/\s+/)
-      [fields[5], ((fields[1].to_i - fields[3].to_i).to_f / fields[1].to_f * 100).round]
+      device = fields[0].split(/\//).last
+      used = fields[1].to_i - fields[3].to_i
+      [device, (used.to_f / fields[1].to_f * 100).round]
     end
   end
   

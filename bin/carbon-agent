@@ -42,7 +42,7 @@ while true do
   rescue MetricNotAvailable
   end
   filesystem_space.each do |fs|
-    message << "server.#{hostname}.filesystem.#{fs[0]} #{fs[1]} #{time}\n"
+    message << "servers.#{hostname}.filesystem.#{fs[0]} #{fs[1]} #{time}\n"
   end
   
   UDPSocket.new.send message, 0, carbon_server, carbon_port
