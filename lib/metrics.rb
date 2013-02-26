@@ -14,7 +14,7 @@ module Metrics
   end
   
   def filesystem_space
-    `df -k | grep "^/"`.split(/\n/).collect do |line|
+    `df -kP | grep "^/"`.split(/\n/).collect do |line|
       fields = line.split(/\s+/)
       device = fields[0].split(/\//).last
       used = fields[1].to_i - fields[3].to_i
