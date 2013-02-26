@@ -1,5 +1,7 @@
 require 'test/unit'
 require 'flexmock/test_unit'
+require 'mysql'
+require 'yaml'
 require_relative '../lib/metrics'
 
 class MetricsTest < Test::Unit::TestCase
@@ -54,6 +56,20 @@ class MetricsTest < Test::Unit::TestCase
     meminfo = mock_data('meminfo.txt')
     flexmock(IO).should_receive(:read).with('/proc/meminfo').and_return(meminfo)
     assert_equal 503428, mem_total
+  end
+  
+  def test_slave_lag
+    db = flexmock(Mysql)
+    db.should_receive(:new).and_return(db)
+    db.should_receive(:query).and_yield(
+      flexmock(:fetch_hash => YAML::load_file('slave_status.txt'))
+    )
+    assert_equal 0, slave_lag
+  end
+  
+  def test_slave_lag_without_mysql_running
+    flexmock(Mysql).should_receive(:new).and_raise(Mysql::Error)
+    assert_raise(MetricNotAvailable) { slave_lag }
   end
   
   def test_swap_free

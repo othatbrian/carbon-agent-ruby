@@ -1,3 +1,4 @@
+require 'mysql'
 require 'net/http'
 
 class MetricNotAvailable < RuntimeError
@@ -13,7 +14,7 @@ module Metrics
   end
   
   def filesystem_space
-    `df -kP | grep "^/"`.split(/\n/).collect do |line|
+    `df -k | grep "^/"`.split(/\n/).collect do |line|
       fields = line.split(/\s+/)
       device = fields[0].split(/\//).last
       used = fields[1].to_i - fields[3].to_i
@@ -31,6 +32,17 @@ module Metrics
   
   def mem_total
     from_proc_meminfo('MemTotal').gsub(" kB$", '').to_i
+  end
+  
+  def slave_lag
+    begin
+      db = Mysql.new('localhost', $db_user, $db_pass, '')
+      db.query('show slave status') do |result|
+        result.fetch_hash['Seconds_Behind_Master']
+      end
+    rescue Mysql::Error
+      raise MetricNotAvailable
+    end
   end
   
   def swap_free
