@@ -51,6 +51,5 @@ while true do
   
   UDPSocket.new.send message, 0, carbon_server, carbon_port
 
-STDERR.puts message
   sleep interval
 end
