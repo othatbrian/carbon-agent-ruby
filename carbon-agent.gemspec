@@ -1,7 +1,7 @@
 Gem::Specification.new do |spec|
   spec.name         = 'carbon-agent'
   spec.summary      = 'A client to send metrics to a carbon server'
-  spec.version      = '0.0.3.3'
+  spec.version      = '0.0.4'
   spec.date         = Time.new.strftime('%F')
   spec.author       = 'Brian Stevens'
   spec.email        = 'brian.stevens@dataporters.com'
