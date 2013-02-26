@@ -34,15 +34,19 @@ module Metrics
     from_proc_meminfo('MemTotal').gsub(" kB$", '').to_i
   end
   
-  def slave_lag
+  def mysql_slave_lag
+    seconds = nil
     begin
       db = Mysql.new('localhost', 'carbon', '', '')
-      db.query('show slave status') do |result|
-        result.fetch_hash['Seconds_Behind_Master']
-      end
+      result = db.query('show slave status')
+      seconds = result.fetch_hash['Seconds_Behind_Master']
+      result.free
     rescue Mysql::Error
       raise MetricNotAvailable
+    ensure
+      db.close
     end
+    seconds
   end
   
   def swap_free

@@ -45,7 +45,7 @@ while true do
   rescue MetricNotAvailable
   end
   begin
-    message << "servers.#{hostname}.mysql.slave_lag #{slave_lag} #{time}\n"
+    message << "servers.#{hostname}.mysql.slave_lag #{mysql_slave_lag} #{time}\n"
   rescue MetricNotAvailable
   end
   
