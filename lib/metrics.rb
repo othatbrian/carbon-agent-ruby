@@ -36,7 +36,7 @@ module Metrics
   
   def slave_lag
     begin
-      db = Mysql.new('localhost', $db_user, $db_pass, '')
+      db = Mysql.new('localhost', '', '', '')
       db.query('show slave status') do |result|
         result.fetch_hash['Seconds_Behind_Master']
       end

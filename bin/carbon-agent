@@ -36,16 +36,21 @@ while true do
   message << "servers.#{hostname}.mem_free #{mem_free * 1024} #{time}\n"
   message << "servers.#{hostname}.swap_total #{swap_total * 1024} #{time}\n"
   message << "servers.#{hostname}.swap_free #{swap_free * 1024} #{time}\n"
+  filesystem_space.each do |fs|
+    message << "servers.#{hostname}.filesystem.#{fs[0]} #{fs[1]} #{time}\n"
+  end
   begin
     message << "servers.#{hostname}.apache.active_workers #{apache_active_workers} #{time}\n"
     message << "servers.#{hostname}.apache.idle_workers #{apache_idle_workers} #{time}\n"
   rescue MetricNotAvailable
   end
-  filesystem_space.each do |fs|
-    message << "servers.#{hostname}.filesystem.#{fs[0]} #{fs[1]} #{time}\n"
+  begin
+    message << "servers.#{hostname}.mysql.slave_lag #{slave_lag} #{time}\n"
+  rescue MetricNotAvailable
   end
   
   UDPSocket.new.send message, 0, carbon_server, carbon_port
 
+STDERR.puts message
   sleep interval
 end
