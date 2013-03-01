@@ -44,7 +44,7 @@ module Metrics
     rescue Mysql::Error
       raise MetricNotAvailable
     ensure
-      db.close
+      db.close if db
     end
     seconds
   end
