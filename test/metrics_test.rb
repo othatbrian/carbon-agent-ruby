@@ -32,13 +32,19 @@ class MetricsTest < Test::Unit::TestCase
     assert_raise(MetricNotAvailable) { apache_active_workers }
   end
   
-  def test_filesystem_space_returns_fs_mount_point
-    flexmock(self).should_receive(:`).and_return(IO.read('df.txt'))
-    assert_equal '/', filesystem_space[0][0]
+  def test_filesystem_space_returns_block_device
+    df = mock_data('df.txt')
+    flexmock(self).
+      should_receive(:`).
+      and_return df
+    assert_equal 'ketest-root', filesystem_space[0][0]
   end
 
   def test_filesystem_space_returns_percent_space_used
-    flexmock(self).should_receive(:`).and_return(IO.read('df.txt'))
+    df = mock_data('df.txt')
+    flexmock(self).
+      should_receive(:`).
+      and_return df
     assert_equal 62, filesystem_space[0][1]
   end
 
@@ -54,22 +60,40 @@ class MetricsTest < Test::Unit::TestCase
   
   def test_mem_total
     meminfo = mock_data('meminfo.txt')
-    flexmock(IO).should_receive(:read).with('/proc/meminfo').and_return(meminfo)
+    flexmock(IO).
+      should_receive(:read).with('/proc/meminfo').
+      and_return meminfo
     assert_equal 503428, mem_total
   end
   
-  def test_slave_lag
+  def test_mysql_slave_lag
+    slave_status = mock_data('slave_status.txt')
     db = flexmock(Mysql)
     db.should_receive(:new).and_return(db)
-    db.should_receive(:query).and_yield(
-      flexmock(:fetch_hash => YAML::load_file('slave_status.txt'))
+    db.should_receive(:query).and_return(
+      flexmock(
+        :fetch_hash => YAML::load(slave_status),
+        :free => nil)
     )
-    assert_equal 0, slave_lag
+    db.should_receive(:close).and_return(db)
+    assert_equal 0, mysql_slave_lag
   end
   
-  def test_slave_lag_without_mysql_running
+  def test_mysql_slave_lag_with_non_slave_server
+    db = flexmock(Mysql)
+    db.should_receive(:new).and_return(db)
+    db.should_receive(:query).and_return(
+      flexmock(
+        :fetch_hash => Hash.new,
+        :free => nil)
+    )
+    db.should_receive(:close).and_return(db)
+    assert_raise(MetricNotAvailable) { mysql_slave_lag }
+  end
+  
+  def test_mysql_slave_lag_without_mysql_running
     flexmock(Mysql).should_receive(:new).and_raise(Mysql::Error)
-    assert_raise(MetricNotAvailable) { slave_lag }
+    assert_raise(MetricNotAvailable) { mysql_slave_lag }
   end
   
   def test_swap_free
