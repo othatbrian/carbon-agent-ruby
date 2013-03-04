@@ -32,9 +32,9 @@ class MetricsTest < Test::Unit::TestCase
     assert_raise(MetricNotAvailable) { apache_active_workers }
   end
   
-  def test_filesystem_space_returns_fs_mount_point
+  def test_filesystem_space_returns_block_device
     flexmock(self).should_receive(:`).and_return(IO.read('df.txt'))
-    assert_equal '/', filesystem_space[0][0]
+    assert_equal 'ketest-root', filesystem_space[0][0]
   end
 
   def test_filesystem_space_returns_percent_space_used
