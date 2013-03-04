@@ -58,18 +58,21 @@ class MetricsTest < Test::Unit::TestCase
     assert_equal 503428, mem_total
   end
   
-  def test_slave_lag
+  def test_mysql_slave_lag
     db = flexmock(Mysql)
     db.should_receive(:new).and_return(db)
-    db.should_receive(:query).and_yield(
-      flexmock(:fetch_hash => YAML::load_file('slave_status.txt'))
+    db.should_receive(:query).and_return(
+      flexmock(
+        :fetch_hash => YAML::load_file('slave_status.txt'),
+        :free => nil)
     )
-    assert_equal 0, slave_lag
+    db.should_receive(:close).and_return(db)
+    assert_equal 0, mysql_slave_lag
   end
   
-  def test_slave_lag_without_mysql_running
+  def test_mysql_slave_lag_without_mysql_running
     flexmock(Mysql).should_receive(:new).and_raise(Mysql::Error)
-    assert_raise(MetricNotAvailable) { slave_lag }
+    assert_raise(MetricNotAvailable) { mysql_slave_lag }
   end
   
   def test_swap_free
