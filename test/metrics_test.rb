@@ -33,12 +33,18 @@ class MetricsTest < Test::Unit::TestCase
   end
   
   def test_filesystem_space_returns_block_device
-    flexmock(self).should_receive(:`).and_return(IO.read('df.txt'))
+    df = mock_data('df.txt')
+    flexmock(self).
+      should_receive(:`).
+      and_return df
     assert_equal 'ketest-root', filesystem_space[0][0]
   end
 
   def test_filesystem_space_returns_percent_space_used
-    flexmock(self).should_receive(:`).and_return(IO.read('df.txt'))
+    df = mock_data('df.txt')
+    flexmock(self).
+      should_receive(:`).
+      and_return df
     assert_equal 62, filesystem_space[0][1]
   end
 
@@ -54,16 +60,19 @@ class MetricsTest < Test::Unit::TestCase
   
   def test_mem_total
     meminfo = mock_data('meminfo.txt')
-    flexmock(IO).should_receive(:read).with('/proc/meminfo').and_return(meminfo)
+    flexmock(IO).
+      should_receive(:read).with('/proc/meminfo').
+      and_return meminfo
     assert_equal 503428, mem_total
   end
   
   def test_mysql_slave_lag
+    slave_status = mock_data('slave_status.txt')
     db = flexmock(Mysql)
     db.should_receive(:new).and_return(db)
     db.should_receive(:query).and_return(
       flexmock(
-        :fetch_hash => YAML::load_file('slave_status.txt'),
+        :fetch_hash => YAML::load(slave_status),
         :free => nil)
     )
     db.should_receive(:close).and_return(db)
