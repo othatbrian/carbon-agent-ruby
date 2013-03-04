@@ -82,7 +82,11 @@ class MetricsTest < Test::Unit::TestCase
   def test_mysql_slave_lag_with_non_slave_server
     db = flexmock(Mysql)
     db.should_receive(:new).and_return(db)
-    db.should_receive(:query).and_return(nil)
+    db.should_receive(:query).and_return(
+      flexmock(
+        :fetch_hash => nil,
+        :free => nil)
+    )
     db.should_receive(:close).and_return(db)
     assert_raise(MetricNotAvailable) { mysql_slave_lag }
   end

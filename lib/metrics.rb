@@ -38,7 +38,8 @@ module Metrics
     seconds = nil
     begin
       db = Mysql.new('localhost', 'carbon', '', '')
-      result = db.query('show slave status') or raise MetricNotAvailable
+      result = db.query('show slave status')
+      result.fetch_hash or raise MetricNotAvailable
       seconds = result.fetch_hash['Seconds_Behind_Master']
       result.free
     rescue Mysql::Error
